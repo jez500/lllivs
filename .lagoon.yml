@@ -1,0 +1,33 @@
+# Lagoon config
+
+docker-compose-yaml: docker-compose.yml
+
+project: laravel-project
+
+tasks:
+#   pre-rollout:
+#     - run:
+#         name: drush sql-dump
+#         command: mkdir -p /app/web/sites/default/files/private/ && drush sql-dump --ordered-dump --gzip --result-file=/app/web/sites/default/files/private/pre-deploy-dump.sql.gz || true
+#         service: cli
+
+  post-rollout:
+    - run:
+        name: Post deploy
+        command: /app/scripts/deploy/post-deploy.sh
+        service: cli
+
+routes:
+  autogenerate:
+    insecure: Redirect
+
+environments:
+#  deploy/lagoon/production:
+#    routes:
+#      - nginx:
+#          - "prod.laravel-project.example.com"
+#    cronjobs:
+#      - name: drush cron
+#        schedule: "* * * * *" # run 10 past the hour
+#        command: "php artisan schedule:run"
+#        service: cli

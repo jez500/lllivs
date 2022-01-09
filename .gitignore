@@ -1,0 +1,46 @@
+/node_modules
+/public/hot
+/storage/*.key
+/storage/debugbar
+/public/storage
+/storage/app/public/*
+/storage/clamav
+/vendor
+.env
+.env.backup
+.phpunit.result.cache
+docker-compose.override.yml
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+.idea
+.lando.local.yml
+.phpstorm.meta.php
+
+# Ignore compiled assets
+/public/css/*.css
+/public/js/*
+/public/js/manifest.js
+/public/js/vendor.js
+/public/mix-manifest.json
+
+# Ignore tests artifacts
+/tests/cypress/videos
+/tests/cypress/screenshots
+/tests/cypress/downloads/*.csv
+/tests/cypress/downloads/*.xlsx
+/tests/cypress/support/routes.json
+/cypress
+
+# Caches
+.php_cs.cache
+
+# Error dumps
+/core
+
+# IDE helpers
+_ide_helper*
+
+# PHPunit
+/coverage/

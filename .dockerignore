@@ -1,0 +1,15 @@
+vendor
+node_modules
+*.gz
+*.sql
+.scannerwork
+.git
+.idea
+.env
+bin
+storage/app/public
+storage/debugbar
+storage/clamav
+screenshots
+tests
+core

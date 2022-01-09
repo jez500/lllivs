@@ -1,0 +1,129 @@
+version: '3.5'
+
+#########################################################################
+# Reusable extensions.
+#########################################################################
+
+x-volumes:
+  &default-volumes
+    volumes:
+      - .:/app:delegated
+      - files:/app/storage
+
+x-environment:
+  &default-environment
+    LAGOON_ROUTE: &default-url http://${COMPOSE_PROJECT_NAME:-project}.lndo.site
+    LAGOON_ENVIRONMENT_TYPE: ${LAGOON_ENVIRONMENT_TYPE:-development}
+    XDEBUG_ENABLE: ${XDEBUG_ENABLE:-false}
+
+x-user:
+  &default-user
+    user: ${DEFAULT_USER-1000}
+
+#########################################################################
+# Docker volumes, used above with x-volumes.
+#########################################################################
+
+volumes:
+  files: {}
+
+#########################################################################
+# Services
+#########################################################################
+
+services:
+
+  # CLI container, will be used for executing composer and any local commands (drush, drupal, etc.)
+  # the `image` will be reused as `CLI_IMAGE` in subsequent Docker builds
+  cli:
+    build:
+      context: .
+      dockerfile: docker/cli.dockerfile
+    image: &cli-image ${COMPOSE_PROJECT_NAME:-project}-cli
+    labels:
+      lagoon.type: cli-persistent
+      lagoon.persistent.name: nginx
+      lagoon.persistent: /app/storage
+      lando.type: php-cli
+    << : *default-volumes
+    user: root
+    environment:
+      << : *default-environment
+
+  # Worker container, used for executing artisan queue:work
+  worker:
+    build:
+      context: .
+      dockerfile: docker/worker.dockerfile
+      args:
+        CLI_IMAGE: *cli-image
+    labels:
+      lagoon.type: cli-persistent
+      lagoon.persistent.name: nginx
+      lagoon.persistent: /app/storage
+    << : *default-volumes
+    environment:
+      << : *default-environment
+    depends_on:
+      - cli
+
+  # NGINX serves frontend and static files
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx.dockerfile
+      args:
+        CLI_IMAGE: *cli-image
+    labels:
+      lagoon.type: nginx-php-persistent
+      lagoon.persistent: /app/storage
+      lando.type: nginx
+    << : *default-volumes
+    << : *default-user
+    depends_on:
+      - cli
+    environment:
+      << : *default-environment
+      LAGOON_LOCALDEV_URL: *default-url
+    networks:
+      - amazeeio-network
+      - default
+
+  # PHP processes php-fpm requests
+  php:
+    build:
+      context: .
+      dockerfile: docker/php.dockerfile
+      args:
+        CLI_IMAGE: *cli-image
+    labels:
+      lagoon.type: nginx-php-persistent
+      lagoon.name: nginx
+      lagoon.persistent: /app/storage
+      lando.type: php-fpm
+    << : *default-volumes
+    << : *default-user
+    depends_on:
+      - cli
+    environment:
+      << : *default-environment
+
+  # MARIADB database
+  mariadb:
+    image: ${IMAGE_DATABASE:-uselagoon/mariadb:latest}
+    labels:
+      lagoon.type: mariadb
+      lando.type: mariadb-drupal
+    ports:
+      - "3306"
+    << : *default-user
+    environment:
+      << : *default-environment
+
+#########################################################################
+# External networks
+#########################################################################
+
+networks:
+  amazeeio-network:
+    external: true
