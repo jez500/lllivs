@@ -4,7 +4,7 @@
             <title>Laravel</title>
         </Head>
 
-        <h1>Laravel + InertiaJS + Vue + SCSS</h1>
+        <h1>PHP {{ phpVersion }} + Laravel {{ laravelVersion }} + InertiaJS + Vue + SCSS</h1>
         <p>See resources/js/Pages/Homepage.vue</p>
     </div>
 </template>
@@ -17,5 +17,15 @@
         components: {
             Head,
         },
+        props: {
+            laravelVersion: {
+                type: String,
+                default: null,
+            },
+            phpVersion: {
+                type: String,
+                default: null,
+            },
+        }
     }
 </script>
