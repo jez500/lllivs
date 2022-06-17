@@ -1,4 +1,4 @@
-FROM uselagoon/php-8.0-cli:latest
+FROM uselagoon/php-8.1-cli:latest
 
 ENV COMPOSER_MEMORY_LIMIT=-1
 ENV COMPOSER_VERSION=2.1.14
